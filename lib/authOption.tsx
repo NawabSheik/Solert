@@ -1,37 +1,16 @@
 import axios from "axios";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { SessionStrategy} from "next-auth";
-import { JWT } from "next-auth/jwt";
-import { NextApiRequest } from "next";
+import { AuthOptions } from "next-auth";
 
-interface User {
-    userId: string;
-    userName: string;
-    email: string;
-  }
-
-  interface Token {
-    id?: string;
-    name?: string;
-  }
-
-  interface Session {
-    user: {
-      userId: string;
-      userName: string;
-      email?: string;
-    };
-  }
-
-const authOptions = {
+const authOptions: AuthOptions = {
     providers: [
         CredentialsProvider({
             name: "credentials",
             credentials: {
-                username: { label: "Email", type: "text"},
-                password: { label: "Password", type: "password"}
+                username: { label: "Email", type: "text" },
+                password: { label: "Password", type: "password" }
             },
-            async authorize(credentials: any, req: any): Promise<any> {
+            async authorize(credentials: any) {
                 const { email, password } = credentials;
 
                 if (!email || !password) {
@@ -39,7 +18,7 @@ const authOptions = {
                 }
 
                 try {
-                    const response = await axios.post('http://ec2-43-205-127-140.ap-south-1.compute.amazonaws.com/api/v1/users/login', { email, password })
+                    const response = await axios.post('https://solert.mach-india.com/api/v1/users/login', { email, password });
                     const user = response.data;
 
                     if (!user) {
@@ -55,20 +34,18 @@ const authOptions = {
     ],
 
     callbacks: {
-        async jwt({ token, user }: { token: JWT; user?: User }): Promise<JWT> {
+        async jwt({ token, user }) {
             if (user) {
-              token.id = user.userId;
-              token.name = user.userName;
+                token.id = user.id;
+                token.name = user.name;
             }
             return token;
         },
-        async session({ session, token }: { session: Session; token: Token }): Promise<Session> {
-            if (session.user) {
-              session.user.userId = token.id || "";
-              session.user.userName = token.name || "";
-            }
+        async session({ session, token }) {
+            session.user.userId = token.id as string;
+            session.user.name = token.name;
             return session;
-          },
+        }
     },
 
     secret: process.env.NEXTAUTH_SECRET,
@@ -78,9 +55,8 @@ const authOptions = {
         error: '/'
     },
     session: {
-        strategy: "jwt" as SessionStrategy,
+        strategy: "jwt"
     }
-
-}
+};
 
 export default authOptions;

@@ -19,7 +19,7 @@ export const Footer = () => {
                            
                         </div>
                         <div className='flex items-center gap-2 pt-2 mt-2'>
-                            <Link href={'https://x.com/priyanshuu_eth'}><FaXTwitter size={30}/></Link>
+                            <Link href={'https://x.com/iam_anawab'}><FaXTwitter size={30}/></Link>
                             <p>Nawab Sheikh</p>
                            
                         </div>
